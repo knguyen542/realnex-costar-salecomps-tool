@@ -34,34 +34,37 @@ def split_name(full_name):
 
 def safe_fullname(first, last):
     first = clean_text(first or "")
-    last  = clean_text(last or "")
+    last  = clean_text(last  or "")
     return f"{first} {last}".strip() if first and last else (first or last)
+
+# -------- Load Static Reference Files --------
+@st.cache_data
+def load_reference_files():
+    template_df = pd.read_excel("RealNex_Template.xlsx", engine="openpyxl")
+    mapping_df = pd.read_excel("Template_CoStar_Alignment_ByData.xlsx", engine="openpyxl")
+    mapping_df.columns = [str(c).strip() for c in mapping_df.columns]
+    return template_df, mapping_df
+
+template_df, mapping_df = load_reference_files()
 
 # -------- Streamlit UI --------
 st.title("📘 RealNex CoStar Sale Comps Import Tool")
 
 st.write("""
-Upload your **CoStar Sale Comps export**, the **RealNex template**, and the **mapping sheet**.  
-The tool will align columns and generate 3 outputs you can download instantly.
+Upload your **CoStar Sale Comps export (.xlsx)** below.  
+The tool will automatically align your data with RealNex’s standard import format and generate 3 files for download.
 """)
 
-costar_file = st.file_uploader("📂 Upload CoStar Sale Comps Export (.xlsx)", type=["xlsx"])
-template_file = st.file_uploader("📂 Upload RealNex Template (.xlsx)", type=["xlsx"])
-mapping_file = st.file_uploader("📂 Upload Mapping Sheet (.xlsx)", type=["xlsx"])
+costar_file = st.file_uploader("📂 Upload CoStar Sale Comps Export", type=["xlsx"])
 
-# --- Processing ---
-if st.button("🚀 Process Files"):
-    if not (costar_file and template_file and mapping_file):
-        st.error("Please upload all 3 files before processing.")
+if st.button("🚀 Process File"):
+    if not costar_file:
+        st.error("Please upload your CoStar Sale Comps file.")
     else:
-        # Read files
         costar_df = pd.read_excel(costar_file, sheet_name=0, engine="openpyxl")
-        mapping_df = pd.read_excel(mapping_file, sheet_name=0, engine="openpyxl")
-
-        mapping_df.columns = [str(c).strip() for c in mapping_df.columns]
-
         final_df = pd.DataFrame(index=costar_df.index)
 
+        # Mapping logic
         for _, row in mapping_df.iterrows():
             tpl_col = str(row["Template Header"]).strip()
             src_val = row["CoStar data header"]
@@ -87,7 +90,7 @@ if st.button("🚀 Process Files"):
             else:
                 final_df[tpl_col] = ""
 
-        # --------- Create output files in memory ---------
+        # --- Generate Outputs ---
         aligned_io = io.BytesIO()
         audit_io = io.BytesIO()
         report_text = io.StringIO()
@@ -95,15 +98,14 @@ if st.button("🚀 Process Files"):
         final_df.to_excel(aligned_io, index=False, engine="openpyxl")
         aligned_io.seek(0)
 
-        # Audit placeholder (can add more later)
-        pd.DataFrame().to_excel(audit_io, index=False, engine="openpyxl")
+        mapping_df.to_excel(audit_io, index=False, engine="openpyxl")
         audit_io.seek(0)
 
         report_text.write("RealNex CoStar Import – Run Report\n")
         report_text.write("==================================\n\n")
-        report_text.write("Processed successfully!\n")
+        report_text.write("Processed successfully using built-in RealNex Template and Mapping Sheet.\n")
 
-        # Save to session state so buttons remain visible
+        # Store in session to keep downloads visible
         st.session_state['aligned'] = aligned_io.getvalue()
         st.session_state['audit'] = audit_io.getvalue()
         st.session_state['report'] = report_text.getvalue()

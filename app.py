@@ -9,7 +9,8 @@ from openpyxl.styles import PatternFill
 st.set_page_config(page_title="RealNex CoStar Sale Comps Tool", layout="wide", page_icon="🏙️")
 
 # ----- Custom CSS with Skyline Background -----
-bg_url = "https://raw.githubusercontent.com/YOUR_USERNAME/realnex-streamlit-tool/main/skyline.jpg"  # use your local image stored in the repo
+bg_url = "https://raw.githubusercontent.com/knguyen542/realnex-streamlit-tool/main/skyline.jpg"
+  # use your local image stored in the repo
 
 st.markdown(f"""
     <style>
@@ -155,4 +156,5 @@ with st.container():
         st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx")
         st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt")
     st.markdown("</div>", unsafe_allow_html=True)
+
 

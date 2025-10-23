@@ -18,7 +18,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----- Background Image (RealNex-style hero) -----
-bg_url = "https://raw.githubusercontent.com/knguyen542/realnex-streamlit-tool/main/skyline.jpg"
+bg_url = "https://raw.githubusercontent.com/knguyen542/realnex-costar-salecomps-tool/main/skyline.jpg"
 
 st.markdown(f"""
     <style>
@@ -175,3 +175,4 @@ with st.container():
         st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx")
         st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt")
     st.markdown("</div>", unsafe_allow_html=True)
+

@@ -17,44 +17,52 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ----- Background Image -----
+# ----- Background Image (RealNex-style hero) -----
 bg_url = "https://raw.githubusercontent.com/knguyen542/realnex-streamlit-tool/main/skyline.jpg"
 
 st.markdown(f"""
     <style>
-        body {{
-            background: url('{bg_url}') no-repeat center center fixed;
+        .stApp {{
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.75)),
+                        url("{bg_url}");
             background-size: cover;
-            color: white;
+            background-position: center;
+            background-attachment: fixed;
         }}
         .main {{
-            background-color: rgba(0, 0, 0, 0.68);
-            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2rem 3rem;
             border-radius: 15px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.5);
-            margin: 3rem auto;
-            max-width: 750px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.6);
+            margin: 4rem auto;
+            max-width: 800px;
         }}
         h1 {{
             text-align: center;
             color: #FFFFFF;
-            font-size: 2.4rem;
+            font-size: 2.6rem;
             font-weight: 700;
+            letter-spacing: 0.5px;
+        }}
+        h3 {{
+            text-align: center;
+            color: #F15A24;
         }}
         .stButton>button {{
-            background-color: #0078D4; /* Bright contrasting blue */
+            background-color: #0078D4;
             color: white;
             border-radius: 8px;
             font-size: 1.1rem;
-            padding: 0.6rem 1.2rem;
+            padding: 0.6rem 1.4rem;
             border: none;
+            transition: 0.2s ease-in-out;
         }}
         .stButton>button:hover {{
             background-color: #3399FF;
-            color: #fff;
+            transform: scale(1.04);
         }}
         .download-btn button {{
-            background-color: #F15A24 !important; /* RealNex orange for downloads */
+            background-color: #F15A24 !important;
             color: white !important;
             border-radius: 8px !important;
         }}
@@ -101,9 +109,12 @@ with st.container():
     st.markdown("<div class='main'>", unsafe_allow_html=True)
     st.title("🏙️ RealNex CoStar Sale Comps Import Tool")
     st.markdown("""
-        Upload your **CoStar Sale Comps export (.xlsx)** below.  
-        The tool automatically aligns your data with the RealNex import template and generates 3 downloadable files.
-    """)
+        <p style='text-align:center; font-size:1.1rem; color:#e6e6e6;'>
+        Upload your <b>CoStar Sale Comps export (.xlsx)</b> below.  
+        The tool automatically aligns your data with the RealNex import template  
+        and generates three ready-to-download files.
+        </p>
+    """, unsafe_allow_html=True)
 
     costar_file = st.file_uploader("📂 Upload CoStar Sale Comps Export", type=["xlsx"])
 
@@ -159,9 +170,8 @@ with st.container():
             st.success("✅ Processing complete! Scroll down to download your files.")
 
     if 'aligned' in st.session_state:
-        st.markdown("<br><hr><h3 style='text-align:center;'>📎 Download Results</h3>", unsafe_allow_html=True)
+        st.markdown("<br><hr><h3>📎 Download Results</h3>", unsafe_allow_html=True)
         st.download_button("⬇️ Download Aligned File", st.session_state['aligned'], file_name="aligned.xlsx")
         st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx")
         st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt")
     st.markdown("</div>", unsafe_allow_html=True)
-

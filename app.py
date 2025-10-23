@@ -9,11 +9,7 @@ from openpyxl.styles import PatternFill
 st.set_page_config(page_title="RealNex CoStar Sale Comps Tool", layout="wide", page_icon="🏙️")
 
 # ----- Custom CSS with Skyline Background -----
-# ✅ Option 1: Hosted background (Unsplash)
-bg_url = "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1600&q=80"
-
-# 🧠 Option 2: Local background (uncomment below and add 'skyline.jpg' to your repo)
-# bg_url = "skyline.jpg"
+bg_url = "skyline.jpg"  # use your local image stored in the repo
 
 st.markdown(f"""
     <style>
@@ -32,12 +28,12 @@ st.markdown(f"""
         }}
         h1 {{
             text-align: center;
-            color: #F15A24;
+            color: #FFFFFF;
             font-size: 2.4rem;
             font-weight: 700;
         }}
         .stButton>button {{
-            background-color: #F15A24;
+            background-color: #0066CC;  /* new contrasting blue */
             color: white;
             border-radius: 8px;
             font-size: 1.1rem;
@@ -45,16 +41,16 @@ st.markdown(f"""
             border: none;
         }}
         .stButton>button:hover {{
-            background-color: #ff784e;
+            background-color: #1E88E5;
             color: #fff;
         }}
         .download-btn button {{
-            background-color: #1E88E5 !important;
+            background-color: #F15A24 !important;  /* RealNex orange for downloads */
             color: white !important;
             border-radius: 8px !important;
         }}
         .download-btn button:hover {{
-            background-color: #42A5F5 !important;
+            background-color: #ff784e !important;
         }}
     </style>
 """, unsafe_allow_html=True)

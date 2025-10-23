@@ -5,17 +5,54 @@ import streamlit as st
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 
-# ----------- Hide Streamlit Default Menu / GitHub Link ----------
-st.set_page_config(page_title="RealNex CoStar Sale Comps Tool", layout="centered", initial_sidebar_state="collapsed")
+# ----- Page setup -----
+st.set_page_config(page_title="RealNex CoStar Sale Comps Tool", layout="wide", page_icon="🏙️")
+
+# ----- Custom CSS -----
 st.markdown("""
     <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: white;
+        }
+        .main {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+            margin: 3rem auto;
+            max-width: 700px;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+        .stButton>button {
+            background-color: #F15A24;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem;
+            border: none;
+        }
+        .stButton>button:hover {
+            background-color: #ff784e;
+            color: #fff;
+        }
+        .download-btn button {
+            background-color: #1E88E5 !important;
+            color: white !important;
+            border-radius: 8px !important;
+        }
+        .download-btn button:hover {
+            background-color: #42A5F5 !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# -------- Helper functions --------
+# ----- Helper functions -----
 def clean_text(value):
     if pd.isna(value):
         return ""
@@ -34,10 +71,10 @@ def split_name(full_name):
 
 def safe_fullname(first, last):
     first = clean_text(first or "")
-    last  = clean_text(last  or "")
+    last  = clean_text(last or "")
     return f"{first} {last}".strip() if first and last else (first or last)
 
-# -------- Load Static Reference Files --------
+# ----- Load static references -----
 @st.cache_data
 def load_reference_files():
     template_df = pd.read_excel("RealNex_Template.xlsx", engine="openpyxl")
@@ -47,75 +84,71 @@ def load_reference_files():
 
 template_df, mapping_df = load_reference_files()
 
-# -------- Streamlit UI --------
-st.title("📘 RealNex CoStar Sale Comps Import Tool")
+# ----- UI layout -----
+with st.container():
+    st.markdown("<div class='main'>", unsafe_allow_html=True)
+    st.title("🏙️ RealNex CoStar Sale Comps Import Tool")
+    st.markdown("""
+        Upload your **CoStar Sale Comps export (.xlsx)** below.  
+        The tool will automatically align your data to the RealNex import template and generate three ready-to-download files.
+    """)
 
-st.write("""
-Upload your **CoStar Sale Comps export (.xlsx)** below.  
-The tool will automatically align your data with RealNex’s standard import format and generate 3 files for download.
-""")
+    costar_file = st.file_uploader("📂 Upload CoStar Sale Comps Export", type=["xlsx"])
 
-costar_file = st.file_uploader("📂 Upload CoStar Sale Comps Export", type=["xlsx"])
+    if st.button("🚀 Process File"):
+        if not costar_file:
+            st.error("Please upload your CoStar Sale Comps file.")
+        else:
+            costar_df = pd.read_excel(costar_file, sheet_name=0, engine="openpyxl")
+            final_df = pd.DataFrame(index=costar_df.index)
 
-if st.button("🚀 Process File"):
-    if not costar_file:
-        st.error("Please upload your CoStar Sale Comps file.")
-    else:
-        costar_df = pd.read_excel(costar_file, sheet_name=0, engine="openpyxl")
-        final_df = pd.DataFrame(index=costar_df.index)
+            for _, row in mapping_df.iterrows():
+                tpl_col = str(row["Template Header"]).strip()
+                src_val = row["CoStar data header"]
 
-        # Mapping logic
-        for _, row in mapping_df.iterrows():
-            tpl_col = str(row["Template Header"]).strip()
-            src_val = row["CoStar data header"]
-
-            if pd.notna(src_val):
-                src_expr = str(src_val).strip()
-                if "+" in src_expr:
-                    parts = [p.strip() for p in src_expr.split("+")]
-                    valid = [p for p in parts if p in costar_df.columns]
-                    if valid:
-                        combined = costar_df[valid[0]].fillna("").astype(str)
-                        for add_col in valid[1:]:
-                            combined = combined.str.cat(costar_df[add_col].fillna("").astype(str), sep=" ")
-                        combined = combined.str.replace(r"\s+", " ", regex=True).str.strip()
-                        combined = combined.map(clean_text).where(lambda s: s != "", "")
-                        final_df[tpl_col] = combined
+                if pd.notna(src_val):
+                    src_expr = str(src_val).strip()
+                    if "+" in src_expr:
+                        parts = [p.strip() for p in src_expr.split("+")]
+                        valid = [p for p in parts if p in costar_df.columns]
+                        if valid:
+                            combined = costar_df[valid[0]].fillna("").astype(str)
+                            for add_col in valid[1:]:
+                                combined = combined.str.cat(costar_df[add_col].fillna("").astype(str), sep=" ")
+                            combined = combined.str.replace(r"\s+", " ", regex=True).str.strip()
+                            combined = combined.map(clean_text).where(lambda s: s != "", "")
+                            final_df[tpl_col] = combined
+                        else:
+                            final_df[tpl_col] = ""
+                    elif src_expr in costar_df.columns:
+                        final_df[tpl_col] = costar_df[src_expr]
                     else:
                         final_df[tpl_col] = ""
-                elif src_expr in costar_df.columns:
-                    final_df[tpl_col] = costar_df[src_expr]
                 else:
                     final_df[tpl_col] = ""
-            else:
-                final_df[tpl_col] = ""
 
-        # --- Generate Outputs ---
-        aligned_io = io.BytesIO()
-        audit_io = io.BytesIO()
-        report_text = io.StringIO()
+            # Output files
+            aligned_io = io.BytesIO()
+            audit_io = io.BytesIO()
+            report_text = io.StringIO()
 
-        final_df.to_excel(aligned_io, index=False, engine="openpyxl")
-        aligned_io.seek(0)
+            final_df.to_excel(aligned_io, index=False, engine="openpyxl")
+            aligned_io.seek(0)
+            mapping_df.to_excel(audit_io, index=False, engine="openpyxl")
+            audit_io.seek(0)
 
-        mapping_df.to_excel(audit_io, index=False, engine="openpyxl")
-        audit_io.seek(0)
+            report_text.write("RealNex CoStar Import – Run Report\n")
+            report_text.write("==================================\n\n")
+            report_text.write("Processed successfully using built-in RealNex Template and Mapping Sheet.\n")
 
-        report_text.write("RealNex CoStar Import – Run Report\n")
-        report_text.write("==================================\n\n")
-        report_text.write("Processed successfully using built-in RealNex Template and Mapping Sheet.\n")
+            st.session_state['aligned'] = aligned_io.getvalue()
+            st.session_state['audit'] = audit_io.getvalue()
+            st.session_state['report'] = report_text.getvalue()
+            st.success("✅ Processing complete! Scroll down to download your files.")
 
-        # Store in session to keep downloads visible
-        st.session_state['aligned'] = aligned_io.getvalue()
-        st.session_state['audit'] = audit_io.getvalue()
-        st.session_state['report'] = report_text.getvalue()
-
-        st.success("✅ Processing complete! Scroll down to download your files.")
-
-# --- Always show download buttons if session data exists ---
-if 'aligned' in st.session_state:
-    st.download_button("⬇️ Download Aligned File", st.session_state['aligned'], file_name="aligned.xlsx")
-if 'audit' in st.session_state:
-    st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx")
-if 'report' in st.session_state:
-    st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt")
+    if 'aligned' in st.session_state:
+        st.markdown("<br><hr><h3 style='text-align:center;'>📎 Download Results</h3>", unsafe_allow_html=True)
+        st.download_button("⬇️ Download Aligned File", st.session_state['aligned'], file_name="aligned.xlsx", key="aligned_dl", help="RealNex-ready import file", type="primary")
+        st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx", key="audit_dl", help="Shows mapping references")
+        st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt", key="report_dl", help="Processing summary")
+    st.markdown("</div>", unsafe_allow_html=True)

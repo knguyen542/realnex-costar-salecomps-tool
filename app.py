@@ -8,10 +8,17 @@ from openpyxl.styles import PatternFill
 # ----- Page setup -----
 st.set_page_config(page_title="RealNex CoStar Sale Comps Tool", layout="wide", page_icon="🏙️")
 
-# ----- Custom CSS with Skyline Background -----
-bg_url = "https://raw.githubusercontent.com/YOUR_USERNAME/realnex-streamlit-tool/main/skyline.jpg"
+# ----- Hide GitHub & Streamlit Menus -----
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 
-  # use your local image stored in the repo
+# ----- Background Image -----
+bg_url = "https://raw.githubusercontent.com/knguyen542/realnex-streamlit-tool/main/skyline.jpg"
 
 st.markdown(f"""
     <style>
@@ -21,10 +28,10 @@ st.markdown(f"""
             color: white;
         }}
         .main {{
-            background-color: rgba(0, 0, 0, 0.65);
+            background-color: rgba(0, 0, 0, 0.68);
             padding: 2rem;
             border-radius: 15px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.5);
             margin: 3rem auto;
             max-width: 750px;
         }}
@@ -35,7 +42,7 @@ st.markdown(f"""
             font-weight: 700;
         }}
         .stButton>button {{
-            background-color: #0066CC;  /* new contrasting blue */
+            background-color: #0078D4; /* Bright contrasting blue */
             color: white;
             border-radius: 8px;
             font-size: 1.1rem;
@@ -43,11 +50,11 @@ st.markdown(f"""
             border: none;
         }}
         .stButton>button:hover {{
-            background-color: #1E88E5;
+            background-color: #3399FF;
             color: #fff;
         }}
         .download-btn button {{
-            background-color: #F15A24 !important;  /* RealNex orange for downloads */
+            background-color: #F15A24 !important; /* RealNex orange for downloads */
             color: white !important;
             border-radius: 8px !important;
         }}
@@ -95,7 +102,7 @@ with st.container():
     st.title("🏙️ RealNex CoStar Sale Comps Import Tool")
     st.markdown("""
         Upload your **CoStar Sale Comps export (.xlsx)** below.  
-        The tool will automatically align your data to the RealNex import template and generate three ready-to-download files.
+        The tool automatically aligns your data with the RealNex import template and generates 3 downloadable files.
     """)
 
     costar_file = st.file_uploader("📂 Upload CoStar Sale Comps Export", type=["xlsx"])
@@ -157,9 +164,3 @@ with st.container():
         st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx")
         st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt")
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-
-
-
-

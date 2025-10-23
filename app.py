@@ -8,47 +8,54 @@ from openpyxl.styles import PatternFill
 # ----- Page setup -----
 st.set_page_config(page_title="RealNex CoStar Sale Comps Tool", layout="wide", page_icon="🏙️")
 
-# ----- Custom CSS -----
-st.markdown("""
+# ----- Custom CSS with Skyline Background -----
+# ✅ Option 1: Hosted background (Unsplash)
+bg_url = "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1600&q=80"
+
+# 🧠 Option 2: Local background (uncomment below and add 'skyline.jpg' to your repo)
+# bg_url = "skyline.jpg"
+
+st.markdown(f"""
     <style>
-        body {
-            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        body {{
+            background: url('{bg_url}') no-repeat center center fixed;
+            background-size: cover;
             color: white;
-        }
-        .main {
-            background-color: rgba(255, 255, 255, 0.08);
+        }}
+        .main {{
+            background-color: rgba(0, 0, 0, 0.65);
             padding: 2rem;
             border-radius: 15px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.4);
             margin: 3rem auto;
-            max-width: 700px;
-        }
-        h1 {
+            max-width: 750px;
+        }}
+        h1 {{
             text-align: center;
-            color: #ffffff;
-            font-size: 2.2rem;
-            font-weight: 600;
-        }
-        .stButton>button {
+            color: #F15A24;
+            font-size: 2.4rem;
+            font-weight: 700;
+        }}
+        .stButton>button {{
             background-color: #F15A24;
             color: white;
             border-radius: 8px;
             font-size: 1.1rem;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border: none;
-        }
-        .stButton>button:hover {
+        }}
+        .stButton>button:hover {{
             background-color: #ff784e;
             color: #fff;
-        }
-        .download-btn button {
+        }}
+        .download-btn button {{
             background-color: #1E88E5 !important;
             color: white !important;
             border-radius: 8px !important;
-        }
-        .download-btn button:hover {
+        }}
+        .download-btn button:hover {{
             background-color: #42A5F5 !important;
-        }
+        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -71,7 +78,7 @@ def split_name(full_name):
 
 def safe_fullname(first, last):
     first = clean_text(first or "")
-    last  = clean_text(last or "")
+    last  = clean_text(last  or "")
     return f"{first} {last}".strip() if first and last else (first or last)
 
 # ----- Load static references -----
@@ -148,7 +155,7 @@ with st.container():
 
     if 'aligned' in st.session_state:
         st.markdown("<br><hr><h3 style='text-align:center;'>📎 Download Results</h3>", unsafe_allow_html=True)
-        st.download_button("⬇️ Download Aligned File", st.session_state['aligned'], file_name="aligned.xlsx", key="aligned_dl", help="RealNex-ready import file", type="primary")
-        st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx", key="audit_dl", help="Shows mapping references")
-        st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt", key="report_dl", help="Processing summary")
+        st.download_button("⬇️ Download Aligned File", st.session_state['aligned'], file_name="aligned.xlsx")
+        st.download_button("⬇️ Download Mapping Audit", st.session_state['audit'], file_name="mapping_audit.xlsx")
+        st.download_button("⬇️ Download Run Report", st.session_state['report'], file_name="run_report.txt")
     st.markdown("</div>", unsafe_allow_html=True)
